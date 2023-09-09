@@ -13,7 +13,8 @@
     "modele-social": "^1.7.1",
     "publicodes": "^1.0.0-beta.70",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "recharts": "^2.8.0"
   },
   "devDependencies": {
     "@types/react": "^18.0.37",

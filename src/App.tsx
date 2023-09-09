@@ -1,9 +1,10 @@
 import './App.css'
-import { useInput, useInputCheckbox, useInputDropdown } from './components/input'
+import { useInput, useInputCheckbox, useInputDropdown, useInputSlider } from './components/input'
 import { simulateEURL } from './simulator/eurl/simulator-eurl'
 import { RevenusType, EntrepriseImposition, SimulationConfig, SituationFamiliale, SituationUnit } from './simulator/simulator'
 import ResultTable from './ResultTable'
 import { simulateIS } from './simulator/is/simulator-is'
+import Chart from './chart/chart'
 
 function App() {
   const [revenusType, setAmountType, amountTypeInput] = useInputDropdown<RevenusType>([
@@ -49,6 +50,7 @@ function App() {
     nbEnfants,
     autresRevenus,
   }
+  const [ratio, setRatio, ratioInput] = useInputSlider({ min: 0, max: ca, value: ca })
 
   return (
     <>
@@ -71,6 +73,10 @@ function App() {
       <ResultTable expressions={simulateEURL(config)}/>
       <h3>Reste sur Société</h3>
       <ResultTable expressions={simulateIS({ ...config, ca })}/>
+      <br/>
+        <label>Ratio Rémunération: {ratio}</label><br/>
+        {ratioInput}
+      <Chart config={config} ca={ca} />
     </>
   )
 }

@@ -8,6 +8,12 @@ export type RevenusType = 'totale' | 'net' | 'apres impot'
 export type SituationFamiliale = "'célibataire'" | "'couple'"
 export type EntrepriseImposition = "'IR'" | "'IS'"
 
+export type ExpressionEURLLabel = 'Rémunération totale' |
+'Cotisations et contributions' |
+'Rémunération nette avant impôt' |
+'Impôt sur le revenu' |
+'Rémunération nette après impôt'
+
 export type SimulationConfig = {
   revenus: number,
   revenusType: RevenusType,
@@ -19,7 +25,7 @@ export type SimulationConfig = {
   autresRevenus: number,
 }
 
-export const EXPRESSIONS = [
+export const EXPRESSIONS: { label: ExpressionEURLLabel; expr: { valeur: string } }[] = [
   {
     label: "Rémunération totale",
     expr: { valeur: "dirigeant . rémunération . totale" }

@@ -44,7 +44,8 @@ export function simulateEURL(config: SimulationConfig & EurlConfig) {
   return EXPRESSIONS.map(({ label, expr }) => (
     {
       label,
-      value: formatValue(ENGINE.evaluate({ ...expr, unité: config.unit })),
+      value: ENGINE.evaluate({ ...expr, unité: config.unit }),
+      // value: formatValue(ENGINE.evaluate({ ...expr, unité: config.unit })),
     }
   ))
 

@@ -5,13 +5,15 @@ export interface ISConfig {
   ca: number,
 }
 
-const EXPRESSIONS = [
+export type ExpressionISLabel = 'Résultat imposable' | 'Impôt sur les sociétés';
+
+const EXPRESSIONS: { label: ExpressionISLabel; expr: { valeur: string } }[] = [
   {
     label: "Résultat imposable",
     expr: { valeur: "entreprise . imposition . IS . résultat imposable" }
   },
   {
-    label: "Résultat net de l'exercice",
+    label: "Impôt sur les sociétés",
     expr: { valeur: "entreprise . imposition . IS . montant" }
   },
 ]
@@ -42,7 +44,7 @@ export function simulateIS(config: SimulationConfig & ISConfig) {
   return EXPRESSIONS.map(({ label, expr }) => (
     {
       label,
-      value: formatValue(ENGINE.evaluate({ ...expr, unité: "€/an" })),
+      value: ENGINE.evaluate({ ...expr, unité: config.unit }),
     }
   ))
 

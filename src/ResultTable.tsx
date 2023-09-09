@@ -1,25 +1,26 @@
+import { EvaluatedNode, formatValue } from "publicodes";
 import "./ResultTable.css"
 
 const ResultTable = (props: {
-  expressions: { label: string, value: string }[]
+  expressions: { label: string, value: EvaluatedNode }[]
 }) => {
   return (
     <div>
       <table>
-        <tr>
-          <th align="left">Label</th>
-          <th align="right">EURL</th>
-          <th align="right">SASU</th>
-        </tr>
-        {props.expressions.map(({label, value}) => {
-          return (
-            <tr key={label}>
-              <td align="left">{label}</td>
-              <td align="right">{value}</td>
-              <td align="right">{value}</td>
-            </tr>
-          )
-        })}
+        <tbody>
+          <tr>
+            <th align="left">Label</th>
+            <th align="right">EURL</th>
+          </tr>
+          {props.expressions.map(({label, value}) => {
+            return (
+              <tr key={label}>
+                <td align="left">{label}</td>
+                <td align="right">{formatValue(value)}</td>
+              </tr>
+            )
+          })}
+        </tbody>
       </table>
     </div>
   );
