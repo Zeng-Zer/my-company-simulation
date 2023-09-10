@@ -53,3 +53,14 @@ export function useInputSlider(options: SliderInput) {
 
   return [value, setValue, input] as const;
 }
+
+// submit button
+export function useSubmitButton(onSubmit: () => void) {
+  const [submit, setSubmit] = useState(false);
+  const input = <input type="submit" onClick={() => {
+    onSubmit()
+    setSubmit(true)
+  }} />;
+
+  return [submit, setSubmit, input] as const;
+}

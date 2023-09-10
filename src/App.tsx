@@ -1,10 +1,13 @@
 import './App.css'
-import { useInput, useInputCheckbox, useInputDropdown, useInputSlider } from './components/input'
+import { useInput, useInputCheckbox, useInputDropdown, useInputSlider, useSubmitButton } from './components/input'
 import { simulateEURL } from './simulator/eurl/simulator-eurl'
 import { RevenusType, EntrepriseImposition, SimulationConfig, SituationFamiliale, SituationUnit } from './simulator/simulator'
 import ResultTable from './ResultTable'
 import { simulateIS } from './simulator/is/simulator-is'
+import axios from 'axios'
 import Chart from './chart/chart'
+import { useState } from 'react'
+import { generateSimulation } from './simulator/generate-simulation'
 
 function App() {
   const [revenusType, setAmountType, amountTypeInput] = useInputDropdown<RevenusType>([
@@ -24,7 +27,6 @@ function App() {
     setRevenus(ca)
   }
 
-  // const [situationUnit, setSituationUnit] = useState<SituationUnit>('€/mois')
   const [situationUnit, setSituationUnit, situationUnitInput] = useInputDropdown<SituationUnit>([
     { value: '€/an', label: 'Annuel' },
     { value: '€/mois', label: 'Mensuel' },
@@ -50,7 +52,26 @@ function App() {
     nbEnfants,
     autresRevenus,
   }
-  const [ratio, setRatio, ratioInput] = useInputSlider({ min: 0, max: ca, value: ca })
+
+  const [simulation, setSimulations] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+
+    // axios
+    //   .post('http://localhost:8000/simulate', { ...config, ca })
+  //   .then(response => console.log(response.data))
+  const [submit, setSubmit, submitInput] = useSubmitButton(async () => {
+    setIsLoading(true);
+    const sim = await generateSimulation(config, ca);
+    setIsLoading(false);
+    setSimulations(sim);
+    // new Promise<any[]>((resolve, reject) => {
+    //   const sim = generateSimulation(config, ca);
+    //   resolve(sim);
+    // }).then((simulation) => {
+    //     setIsLoading(false);
+    //     setSimulations(simulation);
+    //   })
+  })
 
   return (
     <>
@@ -73,12 +94,12 @@ function App() {
       <ResultTable expressions={simulateEURL(config)}/>
       <h3>Reste sur Société</h3>
       <ResultTable expressions={simulateIS({ ...config, ca })}/>
-      <br/>
-        <label>Ratio Rémunération: {ratio}</label><br/>
-        {ratioInput}
-      <Chart config={config} ca={ca} />
+      { isLoading && <div>Loading...</div> }
+      {submitInput}
+      { simulation.length > 0 && <Chart ca={ca} simulations={simulation} /> }
     </>
   )
 }
 
 export default App
+      // <Chart config={config} ca={ca} />
