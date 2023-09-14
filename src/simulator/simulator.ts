@@ -4,7 +4,7 @@ import Engine from "publicodes"
 export const ENGINE = new Engine(rules)
 
 export type SituationUnit = '€/an' | '€/mois'
-export type RevenusType = 'totale' | 'net' | 'apres impot'
+export type RevenusType = 'totale' | 'net' | 'apres impot' | "imposable"
 export type SituationFamiliale = "'célibataire'" | "'couple'"
 export type EntrepriseImposition = "'IR'" | "'IS'"
 
@@ -12,7 +12,9 @@ export type ExpressionEURLLabel = 'Rémunération totale' |
 'Cotisations et contributions' |
 'Rémunération nette avant impôt' |
 'Impôt sur le revenu' |
-'Rémunération nette après impôt'
+'Rémunération nette après impôt' |
+"Nombre de parts" |
+"Net imposable"
 
 export type SimulationConfig = {
   revenus: number,
@@ -46,6 +48,14 @@ export const EXPRESSIONS: { label: ExpressionEURLLabel; expr: { valeur: string }
     label: "Rémunération nette après impôt",
     expr: { valeur: "dirigeant . rémunération . net . après impôt" }
   },
+  {
+    label: "Nombre de parts",
+    expr: { valeur: "impôt . foyer fiscal . nombre de parts" }
+  },
+  {
+    label: "Net imposable",
+    expr: { valeur: "dirigeant . rémunération . net . imposable" }
+  },
 ]
 
 export function matchAmountType(amountType: RevenusType, amount: number) {
@@ -56,5 +66,7 @@ export function matchAmountType(amountType: RevenusType, amount: number) {
       return ({ "dirigeant . rémunération . net" : amount })
     case "apres impot":
       return ({ "dirigeant . rémunération . net . après impôt" : amount })
+    case "imposable":
+      return ({ "dirigeant . rémunération . net . imposable" : amount })
   }
 }

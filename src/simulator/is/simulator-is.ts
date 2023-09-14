@@ -5,7 +5,9 @@ export interface ISConfig {
   ca: number,
 }
 
-export type ExpressionISLabel = 'Résultat imposable' | 'Impôt sur les sociétés';
+export type ExpressionISLabel =
+  'Résultat imposable' |
+  'Impôt sur les sociétés'
 
 const EXPRESSIONS: { label: ExpressionISLabel; expr: { valeur: string } }[] = [
   {

@@ -20,6 +20,18 @@ const EURL_BASE_SITUATION = {
   "entreprise . imposition": "'IS'",
   "entreprise . activité . nature": "'libérale'",
   "entreprise . date de création": "01/01/2023",
+  "dirigeant . indépendant . IJSS": "non",
+  "dirigeant . indépendant . revenus étrangers": "non",
+  "dirigeant . indépendant . PL . régime général . taux spécifique retraite complémentaire": "non",
+  "dirigeant . indépendant . conjoint collaborateur": "non",
+  "dirigeant . indépendant . cotisations facultatives": "non",
+  "entreprise . activités . saisonnière": "non",
+  "situation personnelle . RSA": "non",
+  "entreprise . activité . nature . libérale . réglementée": "non",
+  "situation personnelle . domiciliation fiscale à l'étranger": "non",
+  "dirigeant . exonérations . ACRE": "non",
+  "dirigeant . indépendant . cotisations et contributions . exonérations . pension invalidité": "non",
+  "entreprise . associés": "'unique'",
 }
 
 export function simulateEURL(config: SimulationConfig & EurlConfig) {
@@ -33,10 +45,10 @@ export function simulateEURL(config: SimulationConfig & EurlConfig) {
     ...EURL_BASE_SITUATION,
     ...matchAmountType(config.revenusType, realAmount),
     "dirigeant . exonérations . ACRE": config.acre ? "oui" : "non",
-    ...(config.nbEnfants > 0 && { "impôt . foyer fiscal . enfants à charge": config.nbEnfants }),
+    ...{ "impôt . foyer fiscal . enfants à charge": config.nbEnfants },
     "entreprise . imposition": config.entrepriseImposition,
     "impôt . foyer fiscal . situation de famille": config.situationFamiliale,
-    ...(config.autresRevenus > 0 && { "impôt . foyer fiscal . revenu imposable . autres revenus imposables": config.autresRevenus }),
+    ...{ "impôt . foyer fiscal . revenu imposable . autres revenus imposables": config.autresRevenus },
   }
 
   ENGINE.setSituation(situation)
@@ -48,7 +60,6 @@ export function simulateEURL(config: SimulationConfig & EurlConfig) {
       // value: formatValue(ENGINE.evaluate({ ...expr, unité: config.unit })),
     }
   ))
-
 }
 
 // const EURL_BASE_SITUATION = {

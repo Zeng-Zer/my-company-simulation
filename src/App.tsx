@@ -7,14 +7,15 @@ import { simulateIS } from './simulator/is/simulator-is'
 import axios from 'axios'
 import Chart from './chart/chart'
 import { useState } from 'react'
-import { generateSimulation } from './simulator/generate-simulation'
+import { generateImpotRange, generateSimulation } from './simulator/generate-simulation'
 
 function App() {
-  const [revenusType, setAmountType, amountTypeInput] = useInputDropdown<RevenusType>([
-    { value: 'totale', label: 'Rémunération totale' },
-    { value: 'net', label: 'Rémunération nette' },
-    { value: 'apres impot', label: 'Revenu après impôt' },
-  ])
+  // const [revenusType, setAmountType, amountTypeInput] = useInputDropdown<RevenusType>([
+  //   { value: 'totale', label: 'Rémunération totale' },
+  //   { value: 'net', label: 'Rémunération nette' },
+  //   { value: 'apres impot', label: 'Revenu après impôt' },
+  // ])
+  const revenusType = 'totale';
   const [ca, setCa, caInput] = useInput({ type: 'number', min: 0 })
   const [revenus, setRevenus, revenusInput] = useInput({ type: 'number', min: 0 }, (value: string) => {
     const val = parseInt(value)
@@ -43,7 +44,7 @@ function App() {
   const [nbEnfants, setNbEnfants, nbEnfantsInput] = useInput({ type: 'number', min: 0 })
   const [autresRevenus, setAutresRevenus, autresRevenusInput] = useInput({ type: 'number', min: 0 })
   const config: SimulationConfig = {
-    revenusType: revenusType.value,
+    revenusType,
     revenus,
     unit: situationUnit.value,
     acre,
@@ -53,7 +54,11 @@ function App() {
     autresRevenus,
   }
 
-  const [simulation, setSimulations] = useState<any[]>([]);
+  const eurlSimulation = simulateEURL(config)
+  const isSimulation = simulateIS({ ...config, ca })
+  const parts = eurlSimulation.find((s) => s.label === 'Nombre de parts')?.value.nodeValue as number
+
+  const [simulations, setSimulations] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
     // axios
@@ -61,7 +66,7 @@ function App() {
   //   .then(response => console.log(response.data))
   const [submit, setSubmit, submitInput] = useSubmitButton(async () => {
     setIsLoading(true);
-    const sim = await generateSimulation(config, ca);
+    const sim = await generateSimulation(config, ca, parts);
     setIsLoading(false);
     setSimulations(sim);
     // new Promise<any[]>((resolve, reject) => {
@@ -72,6 +77,8 @@ function App() {
     //     setSimulations(simulation);
     //   })
   })
+
+  const impotRanges = generateImpotRange(parts, simulations);
 
   return (
     <>
@@ -91,15 +98,15 @@ function App() {
         <label>Rénunération: {revenusInput}</label><br/><br/>
       </div>
       <h3>Rémunération</h3>
-      <ResultTable expressions={simulateEURL(config)}/>
+      <ResultTable expressions={eurlSimulation}/>
       <h3>Reste sur Société</h3>
-      <ResultTable expressions={simulateIS({ ...config, ca })}/>
+      <ResultTable expressions={isSimulation}/>
       { isLoading && <div>Loading...</div> }
       {submitInput}
-      { simulation.length > 0 && <Chart ca={ca} simulations={simulation} /> }
+      { simulations.length > 0 && <Chart ca={ca} simulations={simulations} config={config} impotRanges={impotRanges} /> }
     </>
   )
 }
 
 export default App
-      // <Chart config={config} ca={ca} />
+
