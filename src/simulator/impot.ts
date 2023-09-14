@@ -28,10 +28,10 @@ const impots = [
   },
 ];
 
-export function getImpotRange(parts = 1) {
+export function getImpotRange(parts = 1, monthly = false) {
   return impots.map(({ low, high, rate }) => ({
-    low: low * parts,
-    high: high * parts,
+    low: low * parts / (monthly ? 12 : 1),
+    high: high * parts / (monthly ? 12 : 1),
     rate,
   }));
 }

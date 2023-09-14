@@ -14,8 +14,8 @@ function createRangeWithInterval(start: number, end: number, interval: number) {
   return Array.from({ length: (end - start) / interval + 1 }, (_, i) => start + i * interval);
 }
 
-export function generateImpotRange(parts: number, simulations: any[]) {
-  const impots = getImpotRange(parts);
+export function generateImpotRange(parts: number, simulations: any[], conf: SimulationConfig) {
+  const impots = getImpotRange(parts, conf.unit === '€/mois');
   const simulationImposable = simulations.map(simulation => ({
     ...simulation,
     'Net imposable': simulation['Net imposable'] * 0.9 // abattement EURL 10%

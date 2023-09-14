@@ -33,8 +33,8 @@ function CustomTooltip({ active, payload, label }: any) {
   if (active && payload && payload.length) {
     return (
       <div className="custom-tooltip">
-        {/* <p className="label">{`${payload[4].dataKey} : ${payload[4].value}`}</p> */}
-        {/* <p className="label">{`${payload[3].dataKey} : ${payload[3].value}`}</p> */}
+        <p className="label">{`${payload[4].dataKey} : ${formatNumber(payload[4].value)}`}</p>
+        <p className="label">{`${payload[3].dataKey} : ${formatNumber(payload[3].value)}`}</p>
         <p className="label">{`${payload[2].dataKey} : ${formatNumber(payload[2].value)}`}</p>
         <p className="label">{`${payload[1].dataKey} : ${formatNumber(payload[1].value)}`}</p>
         <p className="label">{`${payload[0].dataKey} : ${formatNumber(payload[0].value)}`}</p>
@@ -62,7 +62,7 @@ function Chart(props: ChartProps) {
           bottom: 0,
         }}
       >
-        <CartesianGrid strokeDasharray="1 1" />
+        <CartesianGrid strokeDasharray="1.5 1.5" />
         <XAxis type="number" dataKey="revenu" />
         <YAxis />
         <Tooltip content={<CustomTooltip />} />
@@ -72,9 +72,9 @@ function Chart(props: ChartProps) {
         <Area type="monotone" dataKey="Impôt sur le revenu" stackId="1" stroke="#8884d8" fill="#8884d8" />
         <Area type="monotone" dataKey="Cotisations et contributions" stackId="1" stroke="#8884d8" fill="#8884d8" />
         <Area type="monotone" dataKey="Impôt sur les sociétés" stackId="1" stroke="#FFA500" fill="#FFA500" />
+        <Area type="monotone" dataKey="Rémunération nette après impôt" stackId="1" stroke="#87CEEB" fill="#87CEEB35" />
+        <Area type="monotone" dataKey="Rémunération net après IS" stackId="1" stroke="#82ca9d" fill="#82ca9d35" />
         {/* <Line type="monotone" dataKey="Impôt sur les sociétés" stroke="#CFA500" /> */}
-        {/* <Area type="monotone" dataKey="Rémunération nette après impôt" stackId="1" stroke="#87CEEB" fill="#87CEEB" /> */}
-        {/* <Area type="monotone" dataKey="Rémunération net après IS" stackId="1" stroke="#82ca9d" fill="#82ca9d" /> */}
       </ComposedChart>
     </>
   )

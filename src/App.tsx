@@ -78,7 +78,7 @@ function App() {
     //   })
   })
 
-  const impotRanges = generateImpotRange(parts, simulations);
+  const impotRanges = generateImpotRange(parts, simulations, config);
 
   return (
     <>
