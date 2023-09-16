@@ -2,7 +2,7 @@ import { InputHTMLAttributes, useState } from "react";
 
 // eslint-disable-next-line @typescript-eslint/no-empty-function
 export function useInput(inputProps: InputHTMLAttributes<HTMLInputElement>, onChange: (value: string) => void = () => {}) {
-  const [value, setValue] = useState(0);
+  const [value, setValue] = useState((inputProps.value ?? 0) as number);
   const input =
     <input {...inputProps} value={value} onChange={e => {
       setValue(parseInt(e.target.value))

@@ -27,15 +27,15 @@ export function generateImpotRange(parts: number, simulations: any[], conf: Simu
       (simulation['Net imposable'] >= low && simulation['Net imposable'] <= high)
     )
 
-    if (simulation) return [{ low, high, rate, revenu: simulation['Rémunération totale'], imposable: simulation['Net imposable'] }];
+    if (simulation) return [{ low, high, rate, revenu: simulation['Rémunération totale'] }];
     else return [];
   });
 
   return range as ImpotRange[];
 }
 
-export async function generateSimulation(conf: SimulationConfig, ca: number, iterations: number) {
-  const revenus = createRangeWithInterval(0, ca, ca / iterations);
+export async function generateSimulation(conf: SimulationConfig, ca: number, parts: number) {
+  const revenus = createRangeWithInterval(0, ca, ca / 100);
   const simulations = revenus.map(revenu => {
     const config: SimulationConfig = {
       ...conf,
@@ -78,38 +78,23 @@ export async function generateSimulation(conf: SimulationConfig, ca: number, ite
   //   });
   // });
   
-  const minCotisationRevenu = conf.unit === '€/mois' ? 833 : 10000;
-  const { min, max } = simulations
-    .filter(simulation => simulation.revenu > minCotisationRevenu)
-    .reduce((acc, simulation) => {
-      if (simulation['Cotisations Pourcentage'] > acc.max) {
-        acc.max = simulation['Cotisations Pourcentage'];
-      }
-      if (simulation['Cotisations Pourcentage'] < acc.min) {
-        acc.min = simulation['Cotisations Pourcentage'];
-      }
-      return acc;
-    }, { max: 0, min: Number.POSITIVE_INFINITY });
+  // const { min, max } = simulations.reduce((acc, simulation) => {
+  //   if (simulation['Cotisations Pourcentage'] > acc.max) {
+  //     acc.max = simulation['Cotisations Pourcentage'];
+  //   }
+  //   if (simulation['Cotisations Pourcentage'] < acc.min) {
+  //     acc.min = simulation['Cotisations Pourcentage'];
+  //   }
+  //   return acc;
+  // }, { max: 0, min: simulations[0]['Cotisations Pourcentage'] });
 
-
-
-  const ecart = (max - min) * 10;
-  const newMin = min - ecart;
-  const newMax = max + ecart;
-  // console.log({ min: newMin / ca, max: newMax / ca });
+  const min = 0.15 * ca;
+  const max = 0.45 * ca;
   simulations.forEach(simulation => {
-    const newPourcentage = (simulation['Cotisations Pourcentage'] - newMin) / (newMax - newMin) * ca;
-    if (newPourcentage < 0) {
-      simulation['Cotisations Pourcentage'] = 0;
-    } else if (newPourcentage > ca) {
-      simulation['Cotisations Pourcentage'] = ca;
-    } else {
-      simulation['Cotisations Pourcentage'] = newPourcentage;
-    }
-    // console.log({
-    //   normalized: (simulation['Cotisations Pourcentage'] - newMin) / (newMax - newMin) * ca,
-    //   pourcentage: simulation['Cotisations Pourcentage'] / ca,
-    // });
+    console.log({
+      normalized: (simulation['Cotisations Pourcentage'] - min) / (max - min) * 100,
+      pourcentage: simulation['Cotisations Pourcentage'],
+    });
   });
 
 

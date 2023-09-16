@@ -6,7 +6,7 @@ import ResultTable from './ResultTable'
 import { simulateIS } from './simulator/is/simulator-is'
 import axios from 'axios'
 import Chart from './chart/chart'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { generateImpotRange, generateSimulation } from './simulator/generate-simulation'
 
 function App() {
@@ -16,8 +16,8 @@ function App() {
   //   { value: 'apres impot', label: 'Revenu après impôt' },
   // ])
   const revenusType = 'totale';
-  const [ca, setCa, caInput] = useInput({ type: 'number', min: 0 })
-  const [revenus, setRevenus, revenusInput] = useInput({ type: 'number', min: 0 }, (value: string) => {
+  const [ca, setCa, caInput] = useInput({ type: 'number', min: 0, value: 100000 })
+  const [revenus, setRevenus, revenusInput] = useInput({ type: 'number', min: 0, value: 100000 }, (value: string) => {
     const val = parseInt(value)
     if (val > ca) {
       setCa(val)
@@ -61,12 +61,13 @@ function App() {
   const [simulations, setSimulations] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
+  const [iterations, setIterations, iterationsInput] = useInput({ type: 'number', min: 10, value: 50 })
     // axios
     //   .post('http://localhost:8000/simulate', { ...config, ca })
   //   .then(response => console.log(response.data))
   const [submit, setSubmit, submitInput] = useSubmitButton(async () => {
     setIsLoading(true);
-    const sim = await generateSimulation(config, ca, parts);
+    const sim = await generateSimulation(config, ca, iterations);
     setIsLoading(false);
     setSimulations(sim);
     // new Promise<any[]>((resolve, reject) => {
@@ -102,8 +103,9 @@ function App() {
       <h3>Reste sur Société</h3>
       <ResultTable expressions={isSimulation}/>
       { isLoading && <div>Loading...</div> }
+      <label>Nombre de simulations: {iterationsInput}</label><br/>
       {submitInput}
-      { simulations.length > 0 && <Chart ca={ca} simulations={simulations} config={config} impotRanges={impotRanges} /> }
+      { simulations.length > 0 && <Chart ca={ca} simulations={simulations} config={config} impotRanges={impotRanges} onClick={setRevenus} /> }
     </>
   )
 }
