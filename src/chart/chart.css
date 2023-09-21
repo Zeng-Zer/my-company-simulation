@@ -1,11 +1,4 @@
-#root {
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
-}
-
-
-.container {
+.chart-container {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;

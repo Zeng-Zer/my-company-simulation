@@ -1,0 +1,17 @@
+.legends-container {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-left: 20px; /* Adjust this value for spacing */
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 5px; /* Adjust this value for spacing between legend items */
+}
+
+.legend-item:hover {
+  cursor: pointer;
+  background-color: #333;
+}

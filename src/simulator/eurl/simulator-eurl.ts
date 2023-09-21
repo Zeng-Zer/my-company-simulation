@@ -1,25 +1,55 @@
-import { formatValue } from 'publicodes'
-import { RevenusType, ENGINE, EXPRESSIONS, EntrepriseImposition, SimulationConfig, SituationFamiliale, SituationUnit, matchAmountType } from '../simulator'
+import { Expression, SimulationConfig, matchAmountType, simulate } from '../simulator'
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface EurlConfig {
-  // acre: boolean,
-  // entrepriseImposition: EntrepriseImposition,
-  // situationFamille: SituationFamiliale,
-  // nbEnfants: number,
-  // autresRevenus: number,
-}
+export type ExpressionEURLLabel = 'Rémunération totale' |
+'Cotisations et contributions' |
+'Rémunération nette avant IR' |
+'Impôt sur le revenu' |
+'Rémunération nette après IR' |
+"Nombre de parts" |
+"Net imposable"
 
+export const EXPRESSIONS: Expression[] = [
+  {
+    label: "Rémunération totale",
+    expr: { valeur: "dirigeant . rémunération . totale" },
+  },
+  {
+    label: "Cotisations et contributions",
+    expr: { valeur: "dirigeant . indépendant . cotisations et contributions" },
+  },
+  {
+    label: "Rémunération nette avant IR",
+    expr: { valeur: "dirigeant . rémunération . net" },
+  },
+  {
+    label: "Impôt sur le revenu",
+    expr: { valeur: "impôt . montant" },
+  },
+  {
+    label: "Rémunération nette après IR",
+    expr: { valeur: "dirigeant . rémunération . net . après impôt" },
+  },
+  {
+    label: "Nombre de parts",
+    expr: { valeur: "impôt . foyer fiscal . nombre de parts" },
+    unit: 'parts',
+  },
+  {
+    label: "Net imposable",
+    expr: { valeur: "dirigeant . rémunération . net . imposable" },
+  },
+]
+
+const currentYear = new Date().getFullYear()
 const EURL_BASE_SITUATION = {
   // IR
-  // "impôt . foyer fiscal . revenu imposable . autres revenus imposables": 10000,
   "impôt . foyer fiscal . situation de famille": "'célibataire'",
   "impôt . méthode de calcul": "'barème standard'",
   // Entreprise
   "entreprise . catégorie juridique": "'SARL'",
   "entreprise . imposition": "'IS'",
   "entreprise . activité . nature": "'libérale'",
-  "entreprise . date de création": "01/01/2023",
+  "entreprise . date de création": "01/01/" + currentYear,
   "dirigeant . indépendant . IJSS": "non",
   "dirigeant . indépendant . revenus étrangers": "non",
   "dirigeant . indépendant . PL . régime général . taux spécifique retraite complémentaire": "non",
@@ -34,7 +64,7 @@ const EURL_BASE_SITUATION = {
   "entreprise . associés": "'unique'",
 }
 
-export function simulateEURL(config: SimulationConfig & EurlConfig) {
+export function simulateEURL(config: SimulationConfig) {
   if (isNaN(config.revenus) || config.revenus < 0) {
     return []
   }
@@ -51,40 +81,5 @@ export function simulateEURL(config: SimulationConfig & EurlConfig) {
     ...{ "impôt . foyer fiscal . revenu imposable . autres revenus imposables": config.autresRevenus },
   }
 
-  ENGINE.setSituation(situation)
-
-  return EXPRESSIONS.map(({ label, expr }) => (
-    {
-      label,
-      value: ENGINE.evaluate({ ...expr, unité: config.unit }),
-      // value: formatValue(ENGINE.evaluate({ ...expr, unité: config.unit })),
-    }
-  ))
+  return simulate(situation, config.unit, EXPRESSIONS)
 }
-
-// const EURL_BASE_SITUATION = {
-//   // Dirigeant
-//   "dirigeant . indépendant . IJSS": "non",
-//   "dirigeant . indépendant . revenus étrangers": "non",
-//   "dirigeant . indépendant . PL . régime général . taux spécifique retraite complémentaire": "non",
-//   "dirigeant . indépendant . conjoint collaborateur": "non",
-//   "dirigeant . indépendant . cotisations facultatives": "non",
-//   "dirigeant . exonérations . ACRE": "non",
-//   "dirigeant . indépendant . cotisations et contributions . exonérations . pension invalidité": "non",
-//   // "dirigeant . rémunération . totale": 48002,
-//   // IR
-//   "impôt . foyer fiscal . revenu imposable . autres revenus imposables": 10000,
-//   "impôt . foyer fiscal . situation de famille": "'célibataire'",
-//   "impôt . méthode de calcul": "'barème standard'",
-//   // Entreprise
-//   "entreprise . catégorie juridique": "'SARL'",
-//   "entreprise . imposition": "'IS'",
-//   "entreprise . associés": "'unique'",
-//   "entreprise . activités . saisonnière": "non",
-//   "entreprise . activité . nature . libérale . réglementée": "non",
-//   "entreprise . activité . nature": "'libérale'",
-//   "entreprise . date de création": "01/01/2023",
-//   // Perso
-//   "situation personnelle . RSA": "non",
-//   "situation personnelle . domiciliation fiscale à l'étranger": "non",
-// }

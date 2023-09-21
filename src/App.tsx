@@ -1,20 +1,28 @@
 import './App.css'
 import { useInput, useInputCheckbox, useInputDropdown, useInputSlider, useSubmitButton } from './components/input'
 import { simulateEURL } from './simulator/eurl/simulator-eurl'
-import { RevenusType, EntrepriseImposition, SimulationConfig, SituationFamiliale, SituationUnit } from './simulator/simulator'
-import ResultTable from './ResultTable'
+import { EntrepriseImposition, SimulationConfig, SituationFamiliale, SituationUnit } from './simulator/simulator'
+import ResultTable from './result-table/ResultTable'
 import { simulateIS } from './simulator/is/simulator-is'
-import axios from 'axios'
 import Chart from './chart/chart'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { generateImpotRange, generateSimulation } from './simulator/generate-simulation'
 
+function convertArrayToCSV(data: any[], delimiter = ','): string {
+  if (!Array.isArray(data) || data.length === 0) {
+    return '';
+  }
+
+  const header = Object.keys(data[0]).join(delimiter);
+
+  const rows = data
+    .map((item) => Object.values(item).join(delimiter))
+    .join('\n');
+
+  return `${header}\n${rows}`;
+}
+
 function App() {
-  // const [revenusType, setAmountType, amountTypeInput] = useInputDropdown<RevenusType>([
-  //   { value: 'totale', label: 'Rémunération totale' },
-  //   { value: 'net', label: 'Rémunération nette' },
-  //   { value: 'apres impot', label: 'Revenu après impôt' },
-  // ])
   const revenusType = 'totale';
   const [ca, setCa, caInput] = useInput({ type: 'number', min: 0, value: 100000 })
   const [revenus, setRevenus, revenusInput] = useInput({ type: 'number', min: 0, value: 100000 }, (value: string) => {
@@ -56,56 +64,62 @@ function App() {
 
   const eurlSimulation = simulateEURL(config)
   const isSimulation = simulateIS({ ...config, ca })
-  const parts = eurlSimulation.find((s) => s.label === 'Nombre de parts')?.value.nodeValue as number
+  const parts = eurlSimulation.find((s) => s.label === 'Nombre de parts')?.value as number
 
   const [simulations, setSimulations] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
   const [iterations, setIterations, iterationsInput] = useInput({ type: 'number', min: 10, value: 50 })
-    // axios
-    //   .post('http://localhost:8000/simulate', { ...config, ca })
-  //   .then(response => console.log(response.data))
-  const [submit, setSubmit, submitInput] = useSubmitButton(async () => {
+  // TODO make simulations non blocking
+  const [submit, setSubmit, submitInput] = useSubmitButton("Lancer la simulation", async () => {
     setIsLoading(true);
-    const sim = await generateSimulation(config, ca, iterations);
+    const sim = generateSimulation(config, ca, iterations);
     setIsLoading(false);
     setSimulations(sim);
-    // new Promise<any[]>((resolve, reject) => {
-    //   const sim = generateSimulation(config, ca);
-    //   resolve(sim);
-    // }).then((simulation) => {
-    //     setIsLoading(false);
-    //     setSimulations(simulation);
-    //   })
   })
+
+  const [exportCsv, setExportCsv, exportCsvInput] = useSubmitButton("Exporter en CSV", () => {
+    const csvContent = convertArrayToCSV(simulations);
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", `simulation_EURL_CA_${ca}.csv`);
+    link.click();
+    URL.revokeObjectURL(url);
+  }, simulations.length === 0)
 
   const impotRanges = generateImpotRange(parts, simulations, config);
 
   return (
     <>
-      <h1>EURL - SASU<br/>Simulateur</h1>
-      <div className="card">
-        <h4>Config Général</h4>
-        <label>Unité: {situationUnitInput}</label><br/>
-        <label>Chiffre d'affaire: {caInput}</label><br/><br/>
-        <label>ACRE: {acreInput}</label><br/>
-        <label>Imposition de l'entreprise: {entrepriseImpositionInput}</label><br/>
-        <label>Situation familiale: {situationFamilialeInput}</label><br/>
-        <label>Nombre d'enfants: {nbEnfantsInput}</label><br/>
-        <label>Autres revenus: {autresRevenusInput}</label><br/>
+      <h1>EURL<br/>Simulateur</h1>
+      <div className="container">
+        <div className="inputs">
+          <h4>Config Général</h4>
+          <label>Unité: {situationUnitInput}</label><br/>
+          <label>Chiffre d'affaire: {caInput}</label><br/><br/>
+          <label>ACRE: {acreInput}</label><br/>
+          <label>Imposition de l'entreprise: {entrepriseImpositionInput}</label><br/>
+          <label>Situation familiale: {situationFamilialeInput}</label><br/>
+          <label>Nombre d'enfants: {nbEnfantsInput}</label><br/>
+          <label>Autres revenus: {autresRevenusInput}</label><br/>
+          <label>Rénunération: {revenusInput}</label><br/><br/>
+        </div>
+        <div className="result">
+          <h3>Rémunération</h3>
+          <ResultTable expressions={eurlSimulation}/>
+          <h3>Reste sur Société</h3>
+          <ResultTable expressions={isSimulation}/>
+          { isLoading && <div>Loading...</div> }
+        </div>
       </div>
       <div>
-        <h4>Config EURL</h4>
-        <label>Rénunération: {revenusInput}</label><br/><br/>
+        <h2>Courbe de revenus/ca</h2>
+        <label>Précision de la simulation: {iterationsInput}</label><br/>
+        {submitInput} {exportCsvInput}
+        { simulations.length > 0 && <Chart ca={ca} simulations={simulations} config={config} impotRanges={impotRanges} onClick={setRevenus} /> }
       </div>
-      <h3>Rémunération</h3>
-      <ResultTable expressions={eurlSimulation}/>
-      <h3>Reste sur Société</h3>
-      <ResultTable expressions={isSimulation}/>
-      { isLoading && <div>Loading...</div> }
-      <label>Nombre de simulations: {iterationsInput}</label><br/>
-      {submitInput}
-      { simulations.length > 0 && <Chart ca={ca} simulations={simulations} config={config} impotRanges={impotRanges} onClick={setRevenus} /> }
     </>
   )
 }

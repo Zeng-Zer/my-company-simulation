@@ -55,9 +55,9 @@ export function useInputSlider(options: SliderInput) {
 }
 
 // submit button
-export function useSubmitButton(onSubmit: () => void) {
+export function useSubmitButton(value: string, onSubmit: () => void, disabled = false) {
   const [submit, setSubmit] = useState(false);
-  const input = <input type="submit" onClick={() => {
+  const input = <input type="submit" disabled={disabled} value={value} onClick={() => {
     onSubmit()
     setSubmit(true)
   }} />;

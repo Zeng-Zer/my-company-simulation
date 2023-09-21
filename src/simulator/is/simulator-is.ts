@@ -1,5 +1,4 @@
-import { formatValue } from 'publicodes'
-import { ENGINE, SimulationConfig } from '../simulator'
+import { Expression, SimulationConfig, simulate } from '../simulator'
 
 export interface ISConfig {
   ca: number,
@@ -9,22 +8,25 @@ export type ExpressionISLabel =
   'Résultat imposable' |
   'Impôt sur les sociétés'
 
-const EXPRESSIONS: { label: ExpressionISLabel; expr: { valeur: string } }[] = [
+// 2023
+export const IS_NORMAL_RATE_FLOOR = 42500
+
+const EXPRESSIONS: Expression[] = [
   {
     label: "Résultat imposable",
-    expr: { valeur: "entreprise . imposition . IS . résultat imposable" }
+    expr: { valeur: "entreprise . imposition . IS . résultat imposable" },
   },
   {
     label: "Impôt sur les sociétés",
-    expr: { valeur: "entreprise . imposition . IS . montant" }
+    expr: { valeur: "entreprise . imposition . IS . montant" },
   },
 ]
 
+const currentYear = new Date().getFullYear()
 const IS_BASE_SITUATION = {
   "entreprise . imposition . IS . éligible taux réduit": "oui",
-  "entreprise . exercice . fin": "31/12/2023",
-  // "entreprise . imposition . IS . résultat imposable": 40000,
-  "entreprise . exercice . début": "01/01/2023"
+  "entreprise . exercice . fin": "31/12/" + currentYear,
+  "entreprise . exercice . début": "01/01/" + currentYear
 }
 
 export function simulateIS(config: SimulationConfig & ISConfig) {
@@ -41,13 +43,15 @@ export function simulateIS(config: SimulationConfig & ISConfig) {
   "entreprise . imposition . IS . résultat imposable": resultatImposable,
   }
 
-  ENGINE.setSituation(situation)
-
-  return EXPRESSIONS.map(({ label, expr }) => (
-    {
-      label,
-      value: ENGINE.evaluate({ ...expr, unité: config.unit }),
+  return simulate(situation, config.unit, EXPRESSIONS).map((expr) => {
+    // publicodes doesnt support monthly unit for IS
+    if (expr.label === 'Résultat imposable' && config.unit === '€/mois') {
+      return ({
+        ...expr,
+        value: expr.value / 12,
+      })
+    } else {
+      return expr
     }
-  ))
-
+  })
 }

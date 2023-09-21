@@ -1,5 +1,7 @@
 import rules from "modele-social"
 import Engine from "publicodes"
+import { ExpressionISLabel } from "./is/simulator-is"
+import { ExpressionEURLLabel } from "./eurl/simulator-eurl"
 
 export const ENGINE = new Engine(rules)
 
@@ -7,14 +9,6 @@ export type SituationUnit = '€/an' | '€/mois'
 export type RevenusType = 'totale' | 'net' | 'apres impot' | "imposable"
 export type SituationFamiliale = "'célibataire'" | "'couple'"
 export type EntrepriseImposition = "'IR'" | "'IS'"
-
-export type ExpressionEURLLabel = 'Rémunération totale' |
-'Cotisations et contributions' |
-'Rémunération nette avant impôt' |
-'Impôt sur le revenu' |
-'Rémunération nette après impôt' |
-"Nombre de parts" |
-"Net imposable"
 
 export type SimulationConfig = {
   revenus: number,
@@ -27,36 +21,12 @@ export type SimulationConfig = {
   autresRevenus: number,
 }
 
-export const EXPRESSIONS: { label: ExpressionEURLLabel; expr: { valeur: string } }[] = [
-  {
-    label: "Rémunération totale",
-    expr: { valeur: "dirigeant . rémunération . totale" }
-  },
-  {
-    label: "Cotisations et contributions",
-    expr: { valeur: "dirigeant . indépendant . cotisations et contributions" }
-  },
-  {
-    label: "Rémunération nette avant impôt",
-    expr: { valeur: "dirigeant . rémunération . net" }
-  },
-  {
-    label: "Impôt sur le revenu",
-    expr: { valeur: "impôt . montant" }
-  },
-  {
-    label: "Rémunération nette après impôt",
-    expr: { valeur: "dirigeant . rémunération . net . après impôt" }
-  },
-  {
-    label: "Nombre de parts",
-    expr: { valeur: "impôt . foyer fiscal . nombre de parts" }
-  },
-  {
-    label: "Net imposable",
-    expr: { valeur: "dirigeant . rémunération . net . imposable" }
-  },
-]
+export interface Expression {
+  label: ExpressionISLabel | ExpressionEURLLabel,
+  expr: { valeur: string },
+  unit?: SituationUnit | string,
+  value?: number,
+}
 
 export function matchAmountType(amountType: RevenusType, amount: number) {
   switch (amountType) {
@@ -69,4 +39,16 @@ export function matchAmountType(amountType: RevenusType, amount: number) {
     case "imposable":
       return ({ "dirigeant . rémunération . net . imposable" : amount })
   }
+}
+
+export function simulate(situation: any, unit: SituationUnit, expressions: Expression[]) {
+  ENGINE.setSituation(situation)
+
+  return expressions.map((expression) => (
+    {
+      ...expression,
+      value: ENGINE.evaluate({ ...expression.expr, unité: unit }).nodeValue as number,
+      unit: expression.unit || unit,
+    }
+  ))
 }

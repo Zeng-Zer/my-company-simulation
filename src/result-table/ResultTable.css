@@ -1,7 +1,8 @@
 table {
   table-layout: fixed;
-  width: 100%;
+  width: 700px;
 }
+
 th, td {
   padding: 10px;
   border-bottom: 1px solid #ddd;
