@@ -156,7 +156,7 @@ function Chart(props: ChartProps) {
             <Area type="monotone" dataKey={dataKey.dataKey} stackId="1" stroke={dataKey.color} fill={dataKey.color} isAnimationActive={false} />
           )}
         </ComposedChart>
-        <Legend data={dataKeys} onClick={onClickLegend} />
+        <Legend data={dataKeys.slice().reverse()} onClick={onClickLegend} />
       </div>
     </>
   )
