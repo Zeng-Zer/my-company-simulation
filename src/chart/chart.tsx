@@ -29,7 +29,7 @@ function impotRangeToReferenceArea(impotRange: ImpotRange[], ca: number, referen
     const start = impotRange[i].revenu;
     const end = (i + 1 === impotRange.length) ? ca : impotRange[i + 1].revenu;
     const rate = "IR " + (impot.rate * 100).toString() + "%";
-    const fill = "#fbfbfb" + (i * 45).toString(16);
+    const fill = "#fbfbfb" + ((i + 1) * 25).toString(16);
     referenceAreas.push((<ReferenceArea x1={start} x2={end} y2={referenceY} stroke="blue" strokeOpacity={0.3} label={rate} fill={fill} />))
   }
   return referenceAreas;
