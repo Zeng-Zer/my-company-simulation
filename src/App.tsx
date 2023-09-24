@@ -7,6 +7,8 @@ import { simulateIS } from './simulator/is/simulator-is'
 import Chart from './chart/chart'
 import { useState } from 'react'
 import { generateImpotRange, generateSimulation } from './simulator/generate-simulation'
+import Tabs from './tabs/tabs'
+import StockTab from './tabs/stock-tab'
 
 function convertArrayToCSV(data: any[], delimiter = ','): string {
   if (!Array.isArray(data) || data.length === 0) {
@@ -90,6 +92,18 @@ function App() {
   }, simulations.length === 0)
 
   const impotRanges = generateImpotRange(parts, simulations, config);
+  const tabs = [
+    {
+      label: "Rémunération",
+      content: simulations.length > 0 &&
+        <Chart ca={ca} simulations={simulations} config={config} impotRanges={impotRanges} onClick={setRevenus} />
+    },
+    {
+      label: "Bourse",
+      content: simulations.length > 0 &&
+        <StockTab ca={ca} simulations={simulations} config={config} impotRanges={impotRanges} onClick={setRevenus} />
+    }
+  ]
 
   return (
     <>
@@ -114,12 +128,11 @@ function App() {
           { isLoading && <div>Loading...</div> }
         </div>
       </div>
-      <div>
-        <h2>Courbe de revenus/ca</h2>
+      <div style={{marginTop: "4rem" }}>
         <label>Précision de la simulation: {iterationsInput}</label><br/>
         {submitInput} {exportCsvInput}
-        { simulations.length > 0 && <Chart ca={ca} simulations={simulations} config={config} impotRanges={impotRanges} onClick={setRevenus} /> }
       </div>
+      <Tabs tabs={tabs} />
     </>
   )
 }

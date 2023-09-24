@@ -8,11 +8,11 @@ import { IS_NORMAL_RATE_FLOOR } from "../simulator/is/simulator-is";
 import Legend from "./legend";
 
 
-const colorIR = "#8884d8";
-const colorIS = "#FFA500";
-const colorCotisation = "#6874c8";
-const colorRevenuAfterIR = "#57beeb43";
-const colorRevenuAfterIS = "#82ca9d43";
+export const colorIR = "#8884d8";
+export const colorIS = "#FFA500";
+export const colorCotisation = "#6874c8";
+export const colorRevenuAfterIR = "#57beeb43";
+export const colorRevenuAfterIS = "#82ca9d43";
 
 interface ChartProps {
   ca: number;
@@ -22,7 +22,7 @@ interface ChartProps {
   onClick: (e: number) => void;
 }
 
-function impotRangeToReferenceArea(impotRange: ImpotRange[], ca: number, referenceY: number) {
+export function impotRangeToReferenceArea(impotRange: ImpotRange[], ca: number, referenceY: number) {
   var referenceAreas = [];
   for (let i = 0; i < impotRange.length; i++) {
     const impot = impotRange[i];
@@ -35,7 +35,7 @@ function impotRangeToReferenceArea(impotRange: ImpotRange[], ca: number, referen
   return referenceAreas;
 }
 
-function getPayloadData(payload: any, percent = false, total = 0) {
+export function getPayloadData(payload: any, percent = false, total = 0) {
   const key = payload.dataKey;
   const value = payload.value;
   const percentage = percent ? ` (${formatNumber(computePercent(value, total))}%)` : '';
@@ -85,7 +85,7 @@ function CustomTooltip(props: any) {
         <hr className="solid"/>
         <small>{`Rémunération totale: ${revenu}`}</small>
         <br />
-        <small>{`Revenu Société: ${revenuSociete}`}</small>
+        <small>{`Résultat Société: ${revenuSociete}`}</small>
         <br />
         <small>{`Revenu Perso Brut: ${formatNumber(current['Rémunération nette avant IR'])}`}</small>
       </div>
@@ -126,7 +126,7 @@ function Chart(props: ChartProps) {
   }
 
   return (
-    <>
+    <div>
       <h4>Ratio IS/IR pour un CA de {props.ca}</h4>
       <div className="chart-container">
         <ComposedChart
@@ -158,7 +158,7 @@ function Chart(props: ChartProps) {
         </ComposedChart>
         <Legend data={dataKeys.slice().reverse()} onClick={onClickLegend} />
       </div>
-    </>
+    </div>
   )
 }
 
