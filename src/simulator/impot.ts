@@ -35,3 +35,7 @@ export function getImpotRange(parts = 1, monthly = false) {
     rate,
   }));
 }
+
+export const floorIS = 42500
+export const normalRateIS = 0.25
+export const reducedRateIS = 0.15
