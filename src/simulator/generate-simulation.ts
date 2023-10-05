@@ -64,7 +64,7 @@ interface InvestmentConfig {
 }
 
 // get is to pay for amount considering otherAmount with alreadyPaidIS
-function applyIS(amount: number, otherAmount: number, alreadyPaidIS: number) {
+export function applyIS(amount: number, otherAmount: number, alreadyPaidIS: number) {
   const toTax = amount + otherAmount;
   const newIS = toTax >= floorIS
     ? floorIS * reducedRateIS + (toTax - floorIS) * normalRateIS
@@ -153,7 +153,6 @@ export function generateInvestmentsSimulations(config: InvestmentConfig) {
 
     simulations.push(newSimulation);
   }
-  console.log(simulations)
 
   return simulations;
 }
